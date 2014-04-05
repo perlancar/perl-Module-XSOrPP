@@ -1,5 +1,10 @@
 Revision history for SHARYANTO-Module-Util
 
+0.03    2014-04-05 (SHARYANTO)
+
+        - Bugfix: clobbered $_.
+
+
 0.02    2014-04-05 (SHARYANTO)
 
         - No functional changes.
