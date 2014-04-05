@@ -56,6 +56,12 @@ sub is_xs {
         return 0;
     }
 
+    {
+        if ($mod =~ m!/XS\.pm\z|/[^/]_xs\.pm\z!) {
+            return 1;
+        }
+    }
+
     warn "Can't determine whether $mod is XS: all methods tried\n" if $warn;
     undef;
 }
@@ -103,11 +109,16 @@ an XS module. This method will fail if there is no C<.packlist> available (e.g.
 core or uninstalled or when the package management strips the packlist), or if a
 dist contains both pure-Perl and XS.
 
-=item * Looking at the source file for usage of C<XSLoader>
+=item * Looking at the source file for usage of C<XSLoader> or C<DynaLoader>
 
-If the module source code has something like C<use XSLoader;> then it is assumed
-to be an XS module. This is currently implemented using a simple regex, so it is
-somewhat brittle.
+If the module source code has something like C<use XSLoader;> or <use
+DynaLoader;> then it is assumed to be an XS module. This is currently
+implemented using a simple regex, so it is somewhat brittle.
+
+=item * Guessing from the name
+
+If the module has "XS" in its name then it's assumed to be an XS module. Known
+false positives will be prevented in the future.
 
 =back
 
