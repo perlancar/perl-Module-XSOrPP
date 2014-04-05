@@ -19,8 +19,10 @@ sub is_xs {
     die "Please specify module\n" unless $mod;
 
     $opts //= {};
-    $opts->{warn} //= 0;
+    $opts->{warn}  //= 0;
     my $warn = $opts->{warn};
+    $opts->{debug} //= 0;
+    my $debug = $opts->{debug};
 
     my $path = packlist_for($mod);
     {
@@ -33,9 +35,11 @@ sub is_xs {
         while (my $line = <$fh>) {
             chomp $line;
             if ($line =~ /\.(bs|so|[Dd][Ll][Ll])\z/) {
+                warn "$mod is XS because the .packlist contains .{bs,so,dll} files\n" if $debug;
                 return 1;
             }
         }
+        warn "$mod is PP because the .packlist doesn't contain any .{bs,so,dll} files\n" if $debug;
         return 0;
     }
 
@@ -49,17 +53,24 @@ sub is_xs {
             last;
         }
         while (my $content = <$fh>) {
-            if ($content =~ m!^\s*use XSLoader\b!m) {
+            if ($content =~ m!^\s*(use|require) \s+ (DynaLoader|XSLoader)\b!mx) {
+                warn "$mod is XS because the source contains 'use {DynaLoader,XSLoader}' statement\n" if $debug;
                 return 1;
             }
         }
+        warn "$mod is PP because the source code doesn't contain any 'use {DynaLoader,XSLoader}' statement\n" if $debug;
         return 0;
     }
 
     {
-        if ($mod =~ m!/XS\.pm\z|/[^/]_xs\.pm\z!) {
+        my $mod = $mod;
+        unless ($mod =~ /\.pm\z/) { $mod =~ s!::!/!g; $mod .= ".pm" }
+
+        if ($mod =~ m!/XS\.pm\z|/[^/]+_(xs|XS)\.pm\z!) {
+            warn "$mod is probably XS because its name contains XS" if $debug;
             return 1;
-        } elsif ($mod =~ m!/PP\.pm\z|/[^/]_pp\.pm\z!) {
+        } elsif ($mod =~ m!/PP\.pm\z|/[^/]+_(pp|PP)\.pm\z!) {
+            warn "$mod is probably PP because its name contains PP" if $debug;
             return 0;
         }
     }
@@ -136,6 +147,10 @@ Options:
 =item * warn => BOOL (default: 0)
 
 If set to true, will warn to STDERR if fail to determine.
+
+=item * debug => BOOL (default: 0)
+
+If set to true will print debugging message to STDERR.
 
 =back
 
