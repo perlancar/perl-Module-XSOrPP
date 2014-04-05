@@ -30,9 +30,9 @@ sub is_xs {
             warn "Can't open .packlist $path: $!\n" if $warn;
             last;
         }
-        while (<$fh>) {
-            chomp;
-            if (/\.(bs|so|[Dd][Ll][Ll])\z/) {
+        while (my $line = <$fh>) {
+            chomp $line;
+            if ($line =~ /\.(bs|so|[Dd][Ll][Ll])\z/) {
                 return 1;
             }
         }
@@ -48,8 +48,8 @@ sub is_xs {
             warn "Can't open module file $path: $!" if $warn;
             last;
         }
-        while (<$fh>) {
-            if (m!^\s*use XSLoader\b!m) {
+        while (my $content = <$fh>) {
+            if ($content =~ m!^\s*use XSLoader\b!m) {
                 return 1;
             }
         }
