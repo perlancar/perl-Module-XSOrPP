@@ -56,7 +56,7 @@ sub is_xs {
         return 0;
     }
 
-    warn "Can't determine whether $mod is XS: all methods tried\n";
+    warn "Can't determine whether $mod is XS: all methods tried\n" if $warn;
     undef;
 }
 
