@@ -59,6 +59,8 @@ sub is_xs {
     {
         if ($mod =~ m!/XS\.pm\z|/[^/]_xs\.pm\z!) {
             return 1;
+        } elsif ($mod =~ m!/PP\.pm\z|/[^/]_pp\.pm\z!) {
+            return 0;
         }
     }
 
@@ -117,8 +119,10 @@ implemented using a simple regex, so it is somewhat brittle.
 
 =item * Guessing from the name
 
-If the module has "XS" in its name then it's assumed to be an XS module. Known
-false positives will be prevented in the future.
+If the module has "XS" in its name then it's assumed to be an XS module. If the
+module has "PP" in its name, it's assumed to be a pure-Perl module.
+
+Known false positives will be prevented in the future.
 
 =back
 
