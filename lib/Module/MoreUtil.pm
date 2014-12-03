@@ -1,11 +1,14 @@
-package SHARYANTO::Module::Util;
+package Module::MoreUtil;
+
+# DATE
+# VERSION
 
 use 5.010001;
 use strict;
 use warnings;
 
+use Dist::Util qw(packlist_for);
 use Module::Path qw(module_path);
-use SHARYANTO::Dist::Util qw(packlist_for);
 
 require Exporter;
 our @ISA = qw(Exporter);
@@ -86,14 +89,12 @@ sub is_pp {
     !$is_xs;
 }
 
-# VERSION
-
 1;
 # ABSTRACT: Module-related utilities
 
 =head1 SYNOPSIS
 
- use SHARYANTO::Module::Util qw(
+ use Module::MoreUtil qw(
      is_xs is_pp
  );
 
@@ -158,10 +159,5 @@ If set to true will print debugging message to STDERR.
 
 The opposite of C<is_xs>, return true if module C<$mod> is a pure Perl module.
 See C<is_xs> for more details.
-
-
-=head1 SEE ALSO
-
-L<SHARYANTO>
 
 =cut
