@@ -1,4 +1,4 @@
-package Module::MoreUtil;
+package Module::XSOrPP;
 
 # DATE
 # VERSION
@@ -90,11 +90,11 @@ sub is_pp {
 }
 
 1;
-# ABSTRACT: Module-related utilities
+# ABSTRACT: Determine if an installed module is XS or pure-perl
 
 =head1 SYNOPSIS
 
- use Module::MoreUtil qw(
+ use Module::XSOrPP qw(
      is_xs is_pp
  );
 
