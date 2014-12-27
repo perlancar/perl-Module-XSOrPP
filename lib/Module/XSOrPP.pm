@@ -8,7 +8,7 @@ use strict;
 use warnings;
 
 use Dist::Util qw(packlist_for);
-use Module::Path qw(module_path);
+use Module::Path::More qw(module_path);
 
 require Exporter;
 our @ISA = qw(Exporter);
@@ -46,7 +46,7 @@ sub is_xs {
         return 0;
     }
 
-    $path = module_path($mod);
+    $path = module_path(module=>$mod);
     {
         last unless $path;
         local $/;
