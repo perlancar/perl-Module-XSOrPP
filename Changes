@@ -1,5 +1,13 @@
 Revision history for Module-XSOrPP
 
+0.08    2015-04-21 (PERLANCAR)
+
+        - Add function: xs_or_pp().
+
+        - Support dual (XS with PP fallback) modules e.g. List::MoreUtils by
+          checking against a predefined list.
+
+
 0.07    2014-12-27 (PERLANCAR)
 
 	- No functional changes.
