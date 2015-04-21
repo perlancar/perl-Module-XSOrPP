@@ -15,17 +15,34 @@ our @ISA = qw(Exporter);
 our @EXPORT_OK = qw(
                        is_xs
                        is_pp
+                       xs_or_pp
                );
 
-sub is_xs {
+our @XS_OR_PP_MODULES = qw(
+                              Params::Util
+                              List::MoreUtils
+);
+
+sub xs_or_pp {
+    use experimental 'smartmatch';
+
     my ($mod, $opts) = @_;
     die "Please specify module\n" unless $mod;
+
+    if ($mod =~ m!/!) {
+        $mod =~ s!/!::!g;
+        $mod =~ s/\.pm$//;
+    }
 
     $opts //= {};
     $opts->{warn}  //= 0;
     my $warn = $opts->{warn};
     $opts->{debug} //= 0;
     my $debug = $opts->{debug};
+
+    if ($mod ~~ @XS_OR_PP_MODULES) {
+        return "xs_or_pp";
+    }
 
     my $path = packlist_for($mod);
     {
@@ -39,11 +56,11 @@ sub is_xs {
             chomp $line;
             if ($line =~ /\.(bs|so|[Dd][Ll][Ll])\z/) {
                 warn "$mod is XS because the .packlist contains .{bs,so,dll} files\n" if $debug;
-                return 1;
+                return "xs";
             }
         }
         warn "$mod is PP because the .packlist doesn't contain any .{bs,so,dll} files\n" if $debug;
-        return 0;
+        return "pp";
     }
 
     $path = module_path(module=>$mod);
@@ -58,11 +75,11 @@ sub is_xs {
         while (my $content = <$fh>) {
             if ($content =~ m!^\s*(use|require) \s+ (DynaLoader|XSLoader)\b!mx) {
                 warn "$mod is XS because the source contains 'use {DynaLoader,XSLoader}' statement\n" if $debug;
-                return 1;
+                return "xs";
             }
         }
         warn "$mod is PP because the source code doesn't contain any 'use {DynaLoader,XSLoader}' statement\n" if $debug;
-        return 0;
+        return "pp";
     }
 
     {
@@ -71,10 +88,10 @@ sub is_xs {
 
         if ($mod =~ m!/XS\.pm\z|/[^/]+_(xs|XS)\.pm\z!) {
             warn "$mod is probably XS because its name contains XS" if $debug;
-            return 1;
+            return "xs";
         } elsif ($mod =~ m!/PP\.pm\z|/[^/]+_(pp|PP)\.pm\z!) {
             warn "$mod is probably PP because its name contains PP" if $debug;
-            return 0;
+            return "pp";
         }
     }
 
@@ -82,11 +99,18 @@ sub is_xs {
     undef;
 }
 
+sub is_xs {
+    my ($mod, $opts) = @_;
+    my $res = xs_or_pp($mod, $opts);
+    return undef unless defined($res);
+    $res eq 'xs' || $res eq 'xs_or_pp';
+}
+
 sub is_pp {
     my ($mod, $opts) = @_;
-    my $is_xs = is_xs($mod, $opts);
-    return undef unless defined($is_xs);
-    !$is_xs;
+    my $res = xs_or_pp($mod, $opts);
+    return undef unless defined($res);
+    $res eq 'pp' || $res eq 'xs_or_pp';
 }
 
 1;
@@ -95,11 +119,12 @@ sub is_pp {
 =head1 SYNOPSIS
 
  use Module::XSOrPP qw(
-     is_xs is_pp
+     is_xs is_pp xs_or_pp
  );
 
  say "Class::XSAccessor is an XS module" if is_xs("Class/XSAccessor.pm");
  say "JSON::PP is a pure-Perl module" if is_pp("JSON::PP");
+ say "Params::Util is an XS module with PP fallback" if xs_or_pp("Class/XSAccessor.pm") =~ /^(xs|xs_or_pp)$/;
 
 
 =head1 DESCRIPTION
@@ -107,14 +132,17 @@ sub is_pp {
 
 =head1 FUNCTIONS
 
-=head2 is_xs($mod, \%opts) => BOOL
+=head2 xs_or_pp($mod, \%opts) => str
 
-Return true if module C<$mod> is an XS module, false if a pure Perl module, or
-undef if can't determine either. C<$mod> value can be in the form of
-C<Package/SubPkg.pm> or C<Package::SubPkg>. The following ways are tried, in
-order:
+Return either "xs", "pp", or "xs_or_pp" (XS with a PP fallback). Return undef if
+can't determine which. C<$mod> value can be in the form of C<Package/SubPkg.pm>
+or C<Package::SubPkg>. The following ways are tried, in order:
 
 =over
+
+=item * Predetermined list
+
+Some CPAN modules are XS with a PP fallback. This module maintains the list.
 
 =item * Looking at the C<.packlist>
 
@@ -155,9 +183,14 @@ If set to true will print debugging message to STDERR.
 
 =back
 
+=head2 is_xs($mod, \%opts) => BOOL
+
+Return true if module C<$mod> is an XS module, false if a pure Perl module, or
+undef if can't determine either. See C<xs_or_pp> for more details.
+
 =head2 is_pp($mod, \%opts) => BOOL
 
-The opposite of C<is_xs>, return true if module C<$mod> is a pure Perl module.
-See C<is_xs> for more details.
+Return true if module C<$mod> is a pure Perl module or XS module with a PP
+fallback. See C<is_xs> for more details. See C<xs_or_pp> for more details.
 
 =cut
