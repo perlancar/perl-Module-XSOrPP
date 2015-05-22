@@ -23,6 +23,13 @@ our @XS_OR_PP_MODULES = qw(
                               List::MoreUtils
 );
 
+our @XS_MODULES = qw(
+                        Scalar::Util
+                );
+
+our @PP_MODULES = qw(
+                );
+
 sub xs_or_pp {
     use experimental 'smartmatch';
 
@@ -41,7 +48,18 @@ sub xs_or_pp {
     my $debug = $opts->{debug};
 
     if ($mod ~~ @XS_OR_PP_MODULES) {
+        warn "$mod is xs_or_pp (from list)\n" if $debug;
         return "xs_or_pp";
+    }
+
+    if ($mod ~~ @XS_MODULES) {
+        warn "$mod is xs (from list)\n" if $debug;
+        return "xs";
+    }
+
+    if ($mod ~~ @PP_MODULES) {
+        warn "$mod is pp (from list)\n" if $debug;
+        return "pp";
     }
 
     my $path = packlist_for($mod);

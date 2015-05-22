@@ -21,4 +21,9 @@ is(xs_or_pp("List::MoreUtils"), "xs_or_pp");
 
 ok(!defined(is_xs("FooBar")));
 
+# xs from list
+ok( is_xs("Scalar::Util"));
+ok(!is_pp("Scalar::Util"));
+is(xs_or_pp("Scalar::Util"), "xs");
+
 done_testing;
