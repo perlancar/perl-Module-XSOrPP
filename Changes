@@ -1,5 +1,10 @@
 Revision history for Module-XSOrPP
 
+0.09    2015-05-22 (PERLANCAR)
+
+	- Add predefined XS modules: Scalar::Util.
+
+
 0.08    2015-04-21 (PERLANCAR)
 
         - Add function: xs_or_pp().
