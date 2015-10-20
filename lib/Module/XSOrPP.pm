@@ -19,6 +19,7 @@ our @EXPORT_OK = qw(
                );
 
 our @XS_OR_PP_MODULES = qw(
+                              Params::Validate
                               Params::Util
                               List::MoreUtils
 );
