@@ -1,5 +1,10 @@
 Revision history for Module-XSOrPP
 
+0.11    2016-01-15 (PERLANCAR)
+
+	- Add DateTime to list of XS_OR_PP modules.
+
+
 0.10    2015-10-20 (PERLANCAR)
 
 	- Add to xs_or_pp list: Params::Validate.
