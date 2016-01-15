@@ -19,9 +19,10 @@ our @EXPORT_OK = qw(
                );
 
 our @XS_OR_PP_MODULES = qw(
-                              Params::Validate
-                              Params::Util
+                              DateTime
                               List::MoreUtils
+                              Params::Util
+                              Params::Validate
 );
 
 our @XS_MODULES = qw(
