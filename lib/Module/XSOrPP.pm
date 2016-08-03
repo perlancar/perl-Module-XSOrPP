@@ -8,7 +8,7 @@ use strict;
 use warnings;
 
 use Dist::Util qw(packlist_for);
-use Module::Path::More qw(module_path);
+use Module::Installed::Tiny qw(module_source);
 
 require Exporter;
 our @ISA = qw(Exporter);
@@ -83,20 +83,17 @@ sub xs_or_pp {
         return "pp";
     }
 
-    $path = module_path(module=>$mod);
     {
-        last unless $path;
-        local $/;
-        my $fh;
-        unless (open $fh, '<', $path) {
-            warn "Can't open module file $path: $!" if $warn;
-            last;
+        my $src;
+        eval { $src = module_source($mod) };
+        if ($@) {
+            warn "Can't check $mod for XS/PP because source can't be retrieved: $@" if $debug;
+            return undef;
         }
-        while (my $content = <$fh>) {
-            if ($content =~ m!^\s*(use|require) \s+ (DynaLoader|XSLoader)\b!mx) {
-                warn "$mod is XS because the source contains 'use {DynaLoader,XSLoader}' statement\n" if $debug;
-                return "xs";
-            }
+
+        if ($src =~ m!^\s*(use|require) \s+ (DynaLoader|XSLoader)\b!mx) {
+            warn "$mod is XS because the source contains 'use {DynaLoader,XSLoader}' statement\n" if $debug;
+            return "xs";
         }
         warn "$mod is PP because the source code doesn't contain any 'use {DynaLoader,XSLoader}' statement\n" if $debug;
         return "pp";
