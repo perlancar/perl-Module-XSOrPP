@@ -1,17 +1,18 @@
 package Module::XSOrPP;
 
-# DATE
-# VERSION
-
 use 5.010001;
 use strict;
 use warnings;
 
+use Exporter qw(import);
 use Dist::Util qw(packlist_for);
 use Module::Installed::Tiny qw(module_source);
 
-require Exporter;
-our @ISA = qw(Exporter);
+# AUTHORITY
+# DATE
+# DIST
+# VERSION
+
 our @EXPORT_OK = qw(
                        is_xs
                        is_pp
@@ -33,8 +34,6 @@ our @PP_MODULES = qw(
                 );
 
 sub xs_or_pp {
-    use experimental 'smartmatch';
-
     my ($mod, $opts) = @_;
     die "Please specify module\n" unless $mod;
 
@@ -49,17 +48,17 @@ sub xs_or_pp {
     $opts->{debug} //= 0;
     my $debug = $opts->{debug};
 
-    if ($mod ~~ @XS_OR_PP_MODULES) {
+    if (grep { $_ eq $mod } @XS_OR_PP_MODULES) {
         warn "$mod is xs_or_pp (from list)\n" if $debug;
         return "xs_or_pp";
     }
 
-    if ($mod ~~ @XS_MODULES) {
+    if (grep { $_ eq $mod } @XS_MODULES) {
         warn "$mod is xs (from list)\n" if $debug;
         return "xs";
     }
 
-    if ($mod ~~ @PP_MODULES) {
+    if (grep { $_ eq $mod } @PP_MODULES) {
         warn "$mod is pp (from list)\n" if $debug;
         return "pp";
     }
